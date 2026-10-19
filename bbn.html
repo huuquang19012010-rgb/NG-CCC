@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giao diện 20/10 Tặng Ngọc</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #2c1626, #140912);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Hiệu ứng hạt/ảnh bay từ dưới lên */
+        .particle {
+            position: absolute;
+            bottom: -50px;
+            background: rgba(255, 182, 193, 0.6);
+            border-radius: 50%;
+            animation: floatUp linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 0;
+            }
+            20% {
+                opacity: 0.8;
+            }
+            80% {
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(-105vh) scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        /* Nút phát nhạc giả lập góc trái */
+        .music-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+        .music-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Khung nhập pass */
+        .lock-container {
+            background: rgba(30, 15, 25, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 30px;
+            border-radius: 24px;
+            backdrop-filter: blur(15px);
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            width: 320px;
+            z-index: 10;
+            transition: all 0.5s ease;
+        }
+
+        .lock-container h2 {
+            color: #ffb6c1;
+            margin-bottom: 20px;
+            font-size: 20px;
+            font-weight: 500;
+        }
+
+        /* Dấu chấm mật khẩu */
+        .pass-dots {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .dot {
+            width: 14px;
+            height: 14px;
+            border: 2px solid #ffb6c1;
+            border-radius: 50%;
+            transition: 0.2s;
+        }
+
+        .dot.active {
+            background-color: #ffb6c1;
+        }
+
+        /* Bàn phím số */
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .key {
+            background: rgba(255, 255, 255, 0.08);
+            border: none;
+            color: white;
+            font-size: 20px;
+            padding: 15px 0;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            aspect-ratio: 1;
+        }
+
+        .key:hover {
+            background: rgba(255, 182, 193, 0.3);
+        }
+
+        .key:active {
+            transform: scale(0.92);
+        }
+
+        /* Màn hình sau khi nhập đúng pass */
+        .success-screen {
+            display: none;
+            position: absolute;
+            flex-direction: column;
+            align-items: center;
+            z-index: 20;
+            text-align: center;
+            animation: fadeIn 0.8s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .bouquet-img {
+            width: 180px;
+            height: 180px;
+            object-fit: contain;
+            margin-bottom: 20px;
+            animation: bounce 2s infinite ease-in-out;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Hộp thư thoại chúc mừng */
+        .modal-card {
+            background: rgba(30, 15, 25, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 25px;
+            border-radius: 20px;
+            backdrop-filter: blur(15px);
+            max-width: 380px;
+            color: white;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+        }
+
+        .modal-card h3 {
+            color: #ffb6c1;
+            margin-bottom: 12px;
+            font-size: 22px;
+        }
+
+        .modal-card p {
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            color: #fce4ec;
+        }
+
+        .close-btn {
+            background: #ffb6c1;
+            border: none;
+            color: #140912;
+            padding: 8px 25px;
+            border-radius: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .close-btn:hover {
+            background: #ff80ab;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Nút phát nhạc -->
+    <button class="music-btn" onclick="toggleMusic()">
+        🎵 <span>Play Music</span>
+    </button>
+
+    <!-- Màn hình khóa (Nhập pass) -->
+    <div class="lock-container" id="lockScreen">
+        <h2>Nhập pass nha</h2>
+        <div class="pass-dots">
+            <div class="dot" id="d1"></div>
+            <div class="dot" id="d2"></div>
+            <div class="dot" id="d3"></div>
+            <div class="dot" id="d4"></div>
+        </div>
+        <div class="keypad">
+            <button class="key" onclick="pressKey('1')">1</button>
+            <button class="key" onclick="pressKey('2')">2</button>
+            <button class="key" onclick="pressKey('3')">3</button>
+            <button class="key" onclick="pressKey('4')">4</button>
+            <button class="key" onclick="pressKey('5')">5</button>
+            <button class="key" onclick="pressKey('6')">6</button>
+            <button class="key" onclick="pressKey('7')">7</button>
+            <button class="key" onclick="pressKey('8')">8</button>
+            <button class="key" onclick="pressKey('9')">9</button>
+            <button class="key" onclick="pressKey('0')">0</button>
+            <button class="key" onclick="clearPass()">⌫</button>
+        </div>
+    </div>
+
+    <!-- Màn hình thành công (Bó hoa + Lời chúc) -->
+    <div class="success-screen" id="successScreen">
+        <!-- Dùng hình ảnh bó hoa mẫu từ Internet hoặc link ảnh của bạn -->
+        <img class="bouquet-img" src="https://cdn-icons-png.flaticon.com/512/3768/3768399.png" alt="Bó hoa">
+        <div class="modal-card">
+            <h3>CHÀO NGỌC nhaaa</h3>
+            <p>Chào cậu 20/10 vui vẻ nhé! ✨ Xin lỗi vì ít có thể tặng Ngọc món quà nhỏ này thôi, tuy không có gì quá đặc biệt nhưng tớ đã dành chút thời gian và tâm tư để chuẩn bị nó. Mong là Ngọc sẽ thích món quà này. Chào Ngọc luôn vui vẻ, xinh xắn, học tập thật tốt và gặp được nhiều điều may mắn trong cuộc sống! 💕</p>
+            <button class="close-btn" onclick="resetLock()">ĐÓNG</button>
+        </div>
+    </div>
+
+    <script>
+        // Mật khẩu mẫu là "2010" (hoặc bạn có thể đổi thành số khác tùy ý)
+        const correctPin = "2010"; 
+        let currentInput = "";
+
+        function pressKey(num) {
+            if (currentInput.length < 4) {
+                currentInput += num;
+                updateDots();
+                
+                if (currentInput.length === 4) {
+                    setTimeout(checkPin, 300);
+                }
+            }
+        }
+
+        function clearPass() {
+            currentInput = "";
+            updateDots();
+        }
+
+        function updateDots() {
+            for (let i = 1; i <= 4; i++) {
+                const dot = document.getElementById(`d${i}`);
+                if (i <= currentInput.length) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            }
+        }
+
+        function checkPin() {
+            if (currentInput === correctPin) {
+                document.getElementById('lockScreen').style.display = 'none';
+                document.getElementById('successScreen').style.display = 'flex';
+            } else {
+                alert("Sai mật khẩu rồi! (Gợi ý pass: 2010)");
+                clearPass();
+            }
+        }
+
+        function resetLock() {
+            currentInput = "";
+            updateDots();
+            document.getElementById('successScreen').style.display = 'none';
+            document.getElementById('lockScreen').style.display = 'block';
+        }
+
+        function toggleMusic() {
+            alert("Tính năng phát nhạc (Bạn có thể chèn file nhạc mp3 vào đây bằng thẻ <audio>)");
+        }
+
+        // Tạo hiệu ứng hạt/ảnh bay từ dưới lên tự động
+        function createParticle() {
+            const particle = document.createElement('div');
+            particle.classList.add('particle');
+            
+            // Kích thước ngẫu nhiên
+            const size = Math.random() * 8 + 4;
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            
+            // Vị trí ngang ngẫu nhiên
+            particle.style.left = `${Math.random() * window.innerWidth}px`;
+            
+            // Thời gian bay ngẫu nhiên từ 4s đến 8s
+            const duration = Math.random() * 4 + 4;
+            particle.style.animationDuration = `${duration}s`;
+            
+            document.body.appendChild(particle);
+            
+            // Tự động xóa khi bay xong để giải phóng bộ nhớ
+            setTimeout(() => {
+                particle.remove();
+            }, duration * 1000);
+        }
+
+        // Sinh hạt liên tục mỗi 300ms
+        setInterval(createParticle, 300);
+    </script>
+</body>
+</html>
